@@ -1,8 +1,8 @@
+using Content.Shared.Storage.Components; // Frontier
 using Content.Shared.Examine;
 using Content.Shared.Hands.Components;
 using Content.Shared.Inventory;
-using Content.Shared.Item.ItemToggle;
-using Content.Shared.Storage.Components; // DeltaV
+using Content.Shared.Item.ItemToggle; // DeltaV
 using Content.Shared.Verbs;
 using Content.Shared.Whitelist;
 using Robust.Shared.Map;
@@ -45,7 +45,7 @@ public sealed class MagnetPickupSystem : EntitySystem
     }
 
 
-    // Frontier, used to add the magnet toggle to the context menu
+    // Frontier: togglable magnets
     private void AddToggleMagnetVerb(EntityUid uid, MagnetPickupComponent component, GetVerbsEvent<AlternativeVerb> args)
     {
         // Magnet run by other means (e.g. toggles)
@@ -72,7 +72,6 @@ public sealed class MagnetPickupSystem : EntitySystem
         args.Verbs.Add(verb);
     }
 
-    // Frontier: togglable magnets
     // Show the magnet state on examination
     private void OnExamined(EntityUid uid, MagnetPickupComponent component, ExaminedEvent args)
     {
@@ -151,8 +150,8 @@ public sealed class MagnetPickupSystem : EntitySystem
                 // Using a cheap 'how many slots left' vs 'how many we need' check, and additional stack check.
                 // Note: Unfortunately, this is still 'expensive' as it checks the entire bag, however its better than
                 // to rotate an item n^n times of every item in the bag to find the best fit, for every xy coordinate it has.
-                //if (!_storage.HasSlotSpaceFor(uid, near))
-                //    continue;
+                if (!_storage.HasSpace(uid)) //cleaned up a little bit due to using outdated methods
+                    continue;
                 // FRONTIER - END
 
                 if (!_physicsQuery.TryGetComponent(near, out var physics) || physics.BodyStatus != BodyStatus.OnGround)
