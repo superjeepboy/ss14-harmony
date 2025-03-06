@@ -5,6 +5,8 @@
   description: A robust bag for xenoborgs to carry large amounts of materials.
   components:
   - type: MagnetPickup
+    magnetEnabled: false #Frontier, ported over to material bag
+    magnetCanBeEnabled: false # Frontier, ported over to material bag
   - type: Sprite
     sprite: Objects/Specific/Mining/ore_bag.rsi
     state: icon

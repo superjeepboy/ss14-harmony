@@ -1,14 +1,15 @@
-using Content.Shared.Storage.Components; // Frontier
+using Content.Shared.Storage.Components; // Frontier: Server<Shared
 using Content.Shared.Examine;
 using Content.Shared.Hands.Components;
 using Content.Shared.Inventory;
 using Content.Shared.Item.ItemToggle; // DeltaV
-using Content.Shared.Verbs;
 using Content.Shared.Whitelist;
 using Robust.Shared.Map;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
+using Content.Shared.Item; // Frontier
+using Content.Shared.Verbs; // Frontier
 
 namespace Content.Shared.Storage.EntitySystems;
 
@@ -19,14 +20,16 @@ public sealed class MagnetPickupSystem : EntitySystem
 {
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
-    [Dependency] private readonly InventorySystem _inventory = default!;
+    // [Dependency] private readonly InventorySystem _inventory = default!; // Frontier
     [Dependency] private readonly ItemToggleSystem _toggle = default!; // DeltaV
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly SharedStorageSystem _storage = default!;
     [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
+    [Dependency] private readonly SharedItemSystem _item = default!; // Frontier
 
 
     private static readonly TimeSpan ScanDelay = TimeSpan.FromSeconds(1);
+    private const int MaxEntitiesToInsert = 15; // Frontier
 
     private EntityQuery<PhysicsComponent> _physicsQuery;
 
@@ -66,7 +69,7 @@ public sealed class MagnetPickupSystem : EntitySystem
             },
             Icon = new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/Spare/poweronoff.svg.192dpi.png")),
             Text = Loc.GetString("magnet-pickup-component-toggle-verb"),
-            Priority = component.MagnetTogglePriority
+            Priority = component.MagnetTogglePriority // Frontier: 3 < component.MagnetTogglePriority
         };
 
         args.Verbs.Add(verb);
@@ -108,9 +111,9 @@ public sealed class MagnetPickupSystem : EntitySystem
             if (comp.NextScan > currentTime)
                 continue;
 
-            comp.NextScan += ScanDelay;
+            comp.NextScan = currentTime + ScanDelay; // Frontier: no need to rerun if built late in-round
 
-            // Begin DeltaV Addition: Make ore bags use ItemToggle
+            // Frontier: combine DeltaV/White Dream's magnet toggle with old system
             if (comp.MagnetCanBeEnabled)
             {
                 if (!comp.MagnetEnabled)
@@ -121,7 +124,7 @@ public sealed class MagnetPickupSystem : EntitySystem
                 if (!_toggle.IsActivated(uid))
                     continue;
             }
-            // End DeltaV Addition
+            // End Frontier
 
             // Begin DeltaV Removals: Allow ore bags to work inhand
             //if (!_inventory.TryGetContainingSlot((uid, xform, meta), out var slotDef))
@@ -131,34 +134,44 @@ public sealed class MagnetPickupSystem : EntitySystem
             //    continue;
             // End DeltaV Removals
 
-            // No space
-            if (!_storage.HasSpace((uid, storage)))
+            // Frontier: run conservative space estimations, cut down on space checks
+            var slotCount = _storage.GetCumulativeItemAreas((uid, storage)); // Frontier
+            var totalSlots = storage.Grid.GetArea();
+            if (slotCount >= totalSlots)
                 continue;
+            // End Frontier
 
             var parentUid = xform.ParentUid;
             var playedSound = false;
             var finalCoords = xform.Coordinates;
             var moverCoords = _transform.GetMoverCoordinates(uid, xform);
+            var count = 0; // Frontier
 
             foreach (var near in _lookup.GetEntitiesInRange(uid, comp.Range, LookupFlags.Dynamic | LookupFlags.Sundries))
             {
-                if (_whitelistSystem.IsWhitelistFail(storage.Whitelist, near))
-                    continue;
+                // Frontier: stop spamming bags
+                if (count >= MaxEntitiesToInsert)
+                    break;
 
-                // FRONTIER - START
-                // Makes sure that after the last insertion, there is still bag space.
-                // Using a cheap 'how many slots left' vs 'how many we need' check, and additional stack check.
-                // Note: Unfortunately, this is still 'expensive' as it checks the entire bag, however its better than
-                // to rotate an item n^n times of every item in the bag to find the best fit, for every xy coordinate it has.
-                if (!_storage.HasSpace(uid)) //cleaned up a little bit due to using outdated methods
+                if (near == parentUid)
                     continue;
-                // FRONTIER - END
 
                 if (!_physicsQuery.TryGetComponent(near, out var physics) || physics.BodyStatus != BodyStatus.OnGround)
                     continue;
 
-                if (near == parentUid)
+                if (_whitelistSystem.IsWhitelistFail(storage.Whitelist, near))
                     continue;
+
+                if (!TryComp<ItemComponent>(near, out var item))
+                    continue;
+
+                var itemSize = _item.GetItemShape((near, item)).GetArea();
+                if (itemSize > totalSlots - slotCount)
+                    break;
+
+                // Count only objects we _could_ insert.
+                count++;
+                // End Frontier: stop spamming bags
 
                 // TODO: Probably move this to storage somewhere when it gets cleaned up
                 // TODO: This sucks but you need to fix a lot of stuff to make it better
@@ -166,10 +179,12 @@ public sealed class MagnetPickupSystem : EntitySystem
                 // game state handling we can't show a lerp animation for it.
                 var nearXform = Transform(near);
                 var nearMap = _transform.GetMapCoordinates(near, xform: nearXform);
-                var nearCoords = EntityCoordinates.FromMap(moverCoords.EntityId, nearMap, _transform, EntityManager);
+                var nearCoords = _transform.ToCoordinates(moverCoords.EntityId, nearMap);
 
                 if (!_storage.Insert(uid, near, out var stacked, storageComp: storage, playSound: !playedSound))
-                    continue;
+                    break; // Frontier: continue<break
+
+                slotCount += itemSize; // Frontier: adjust size (assume it's in a new slot)
 
                 // Play pickup animation for either the stack entity or the original entity.
                 if (stacked != null)

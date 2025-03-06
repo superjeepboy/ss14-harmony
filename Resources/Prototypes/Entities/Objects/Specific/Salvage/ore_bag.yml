@@ -6,7 +6,7 @@
   components:
   - type: MagnetPickup
     magnetEnabled: false # Frontier
-    magnetCanBeEnabled: false # Frontier
+    magnetCanBeEnabled: true # Frontier
   - type: Sprite
     sprite: Objects/Specific/Mining/ore_bag.rsi
     #state: icon # DeltaV: use a layer instead
@@ -19,7 +19,7 @@
     slots:
     - belt
   - type: Item
-    size: Ginormous # was Huge in the DeltaV balancing, restored to Ginormous in Harmony
+    size: Ginormous # was Huge in DeltaV balancing, restored to Ginormous in Harmony
   - type: Storage
     maxItemSize: Normal
     grid:
@@ -44,11 +44,11 @@
   - type: ItemToggleExamine
     on: magnet-pickup-component-magnet-on
     off: magnet-pickup-component-magnet-off
-  - type: Appearance
-  - type: GenericVisualizer
-    visuals:
-      enum.ToggleVisuals.Toggled:
-        enum.ToggleVisuals.Layer:
-          True: { state: icon_on }
-          False: { state: icon }
+  #- type: Appearance
+  #- type: GenericVisualizer
+    #visuals:
+      #enum.ToggleVisuals.Toggled:
+        #enum.ToggleVisuals.Layer:
+          #True: { state: icon_on }
+          #False: { state: icon }
   # End DeltaV Additions
