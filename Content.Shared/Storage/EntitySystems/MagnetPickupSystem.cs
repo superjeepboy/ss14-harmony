@@ -1,6 +1,6 @@
-using Content.Server.Storage.Components;
 using Content.Shared.Inventory;
-using Content.Shared.Item.ItemToggle; // DeltaV
+using Content.Shared.Item.ItemToggle;
+using Content.Shared.Storage.Components; // DeltaV
 using Content.Shared.Whitelist;
 using Robust.Shared.Map;
 using Robust.Shared.Physics.Components;
