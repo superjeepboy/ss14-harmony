@@ -1,7 +1,8 @@
+using Content.Shared._DV.Item.ItemToggle.Components;
 using Content.Shared.Examine;
 using Content.Shared.Item.ItemToggle;
 
-namespace Content.Shared.DeltaV.Item.ItemToggle.Systems;
+namespace Content.Shared._DV.Item.ItemToggle.Systems;
 
 public sealed class ItemToggleExamineSystem : EntitySystem
 {
@@ -11,10 +12,10 @@ public sealed class ItemToggleExamineSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeLocalEvent<DeltaV.Item.ItemToggle.Components.ItemToggleExamineComponent, ExaminedEvent>(OnExamined);
+        SubscribeLocalEvent<ItemToggleExamineComponent, ExaminedEvent>(OnExamined);
     }
 
-    private void OnExamined(Entity<DeltaV.Item.ItemToggle.Components.ItemToggleExamineComponent> ent, ref ExaminedEvent args)
+    private void OnExamined(Entity<ItemToggleExamineComponent> ent, ref ExaminedEvent args)
     {
         var msg = _toggle.IsActivated(ent.Owner) ? ent.Comp.On : ent.Comp.Off;
         args.PushMarkup(Loc.GetString(msg));
