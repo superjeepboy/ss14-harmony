@@ -5,8 +5,8 @@
   description: A robust bag for salvage specialists and miners alike to carry large amounts of ore. Magnetises any nearby ores when attached to a belt.
   components:
   - type: MagnetPickup
-    magnetEnabled: false # Frontier
-    magnetCanBeEnabled: false # Frontier
+    magnetEnabled: false # Frontier, determines if it is enabled
+    magnetCanBeEnabled: false # Frontier, determines if it SHOULD be enabled
   - type: Sprite
     sprite: Objects/Specific/Mining/ore_bag.rsi
     # Frontier: layered sprite
@@ -41,9 +41,9 @@
       params:
         variation: 0.25
     soundDeactivate: *soundActivate
-    onUse: false
-    onAltUse: true
-    onActivate: false
+    onUse: false # Triggers the primary interact
+    onAltUse: true # Triggers the alt interact
+    onActivate: false # Triggers the click interact
   - type: ItemToggleExamine
     on: item-toggle-examine-magnet-on
     off: item-toggle-examine-magnet-off
