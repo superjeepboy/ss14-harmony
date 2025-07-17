@@ -28,13 +28,13 @@ public sealed partial class MagnetPickupComponent : Component
     /// Is the magnet currently enabled?
     /// </summary>
     [AutoNetworkedField, ViewVariables(VVAccess.ReadWrite), DataField]
-    public bool MagnetEnabled = true;
+    public bool MagnetEnabled = false;
 
     /// <summary>
     /// Is the magnet currently enabled?
     /// </summary>
-    [ViewVariables(VVAccess.ReadWrite), DataField]
-    public bool MagnetCanBeEnabled = true;
+    [AutoNetworkedField, ViewVariables(VVAccess.ReadWrite), DataField]
+    public bool MagnetCanBeEnabled = false;
 
     /// <summary>
     /// Is the magnet currently enabled?
