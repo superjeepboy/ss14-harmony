@@ -6,20 +6,23 @@
   components:
   - type: MagnetPickup
     magnetEnabled: false # Frontier
-    magnetCanBeEnabled: true # Frontier
+    magnetCanBeEnabled: false # Frontier
   - type: Sprite
     sprite: Objects/Specific/Mining/ore_bag.rsi
-    #state: icon # DeltaV: use a layer instead
-    #layers: # DeltaV
+    # Frontier: layered sprite
+#    layers:
     state: icon
-      #map: [ "enum.ToggleVisuals.Layer" ]
+#    - state: icon-on
+#      visible: False
+#      map: [ "enum.ToggleVisuals.Layer" ]
+    # End Frontier
   - type: Clothing
     sprite: Objects/Specific/Mining/ore_bag.rsi
     quickEquip: false
     slots:
     - belt
   - type: Item
-    size: Ginormous # was Huge in DeltaV balancing, restored to Ginormous in Harmony
+    size: Ginormous
   - type: Storage
     maxItemSize: Normal
     grid:
@@ -28,8 +31,8 @@
     areaInsert: true
     whitelist:
       tags:
-        - ArtifactFragment
-        - Ore
+      - ArtifactFragment
+      - Ore
   - type: Dumpable
   # Begin DeltaV Additions: toggle magnet from White Dream
   - type: ItemToggle
@@ -42,13 +45,23 @@
     onAltUse: true
     onActivate: false
   - type: ItemToggleExamine
-    on: magnet-pickup-component-magnet-on
-    off: magnet-pickup-component-magnet-off
-  #- type: Appearance
-  #- type: GenericVisualizer
-    #visuals:
-      #enum.ToggleVisuals.Toggled:
-        #enum.ToggleVisuals.Layer:
-          #True: { state: icon_on }
-          #False: { state: icon }
+    on: item-toggle-examine-magnet-on
+    off: item-toggle-examine-magnet-off
+#  - type: Appearance
+#  - type: GenericVisualizer
+#    visuals:
+#      enum.ToggleVisuals.Toggled:
+#        enum.ToggleVisuals.Layer:
+#          True: { visible: True }
+#          False: { visible: False }
   # End DeltaV Additions
+
+- type: entity
+  parent: OreBag
+  id: BorgOreBag
+  name: integrated ore bag
+  description: A large ore bag built into the frame of a mining cyborg.
+  components:
+  - type: Storage
+    grid:
+    - 0,0,9,5
