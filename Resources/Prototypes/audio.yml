@@ -204,6 +204,8 @@
     - /Audio/Ambience/spookyspace2.ogg
     - /Audio/Ambience/ambispace2.ogg
     - /Audio/Lobby/title2.ogg
+    # Harmony - you know you're fucked when you hear this
+    - /Audio/_Harmony/Ambience/avemaria.ogg
 
 - type: soundCollection
   id: AmbienceSpooky
